@@ -14,6 +14,7 @@ namespace SabberStoneBasicAI.PartialObservation
 {
 	partial class POGame
 	{
+		// define variable for "No Way!" card 
 		private static readonly Card PlaceHolder = Cards.FromId("LOEA04_31b");
 
 		private Game game;
@@ -43,6 +44,11 @@ namespace SabberStoneBasicAI.PartialObservation
 		{
 			Controller op = game.CurrentOpponent;
 			Card placeHolder = PlaceHolder;
+
+			if (this.hideCurrentPlayer)
+			{
+				op = game.CurrentPlayer;
+			}
 
 			op.DeckCards = DebugDecks.PartialObservationDeck;
 
