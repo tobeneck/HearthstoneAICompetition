@@ -9,27 +9,31 @@ using SabberStoneCore.Model.Zones;
 using SabberStoneCore.Tasks.PlayerTasks;
 using SabberStoneBasicAI.Meta;
 
-
 namespace SabberStoneBasicAI.PartialObservation
 {
 	partial class POGame
 	{
+		// define variable for "No Way!" card 
 		private static readonly Card PlaceHolder = Cards.FromId("LOEA04_31b");
 
 		private Game game;
-		private Game origGame;
 		private bool debug;
-		private bool hideCurrentPlayer;
 		private static int max_tries = 10;
 
-		public POGame(Game game, bool debug, bool hideCurrentPlayer = false)
+		public POGame(Game game, bool debug, Game prevGame = null)
 		{
-			this.origGame = game;
 			this.game = game.Clone();
 			game.Player1.Game = game;
 			game.Player2.Game = game;
-			this.hideCurrentPlayer = hideCurrentPlayer;
-			prepareOpponent();
+			if (prevGame != null)
+			{
+				hideAdditionalCards(prevGame);
+			}
+			else
+			{
+				prepareOpponent();
+			}
+
 			this.debug = debug;
 
 			if (debug)
@@ -61,7 +65,47 @@ namespace SabberStoneBasicAI.PartialObservation
 			op.DeckZone = deck;
 		}
 
-		private void addCardToZone(IZone zone, Card card, Controller player)
+		private void hideAdditionalCards(Game prevGame)
+		{
+			//compare current HandZones with the game before and remove all drawn cards
+			HandZone prevOp;
+			HandZone prevPl;
+			if (game.CurrentOpponent.PlayerId == prevGame.CurrentOpponent.PlayerId)
+			{
+				prevOp = prevGame.CurrentOpponent.HandZone;
+				prevPl = prevGame.CurrentPlayer.HandZone;
+			}
+			else
+			{
+				prevOp = prevGame.CurrentPlayer.HandZone;
+				prevPl = prevGame.CurrentOpponent.HandZone;
+			}
+
+			foreach (IPlayable card in game.CurrentOpponent.HandZone)
+			{
+				if (!prevOp.Any(x => x.Id == card.Id))
+				{
+					game.CurrentOpponent.HandZone.Remove(card);
+					game.AuraUpdate();
+					game.CurrentOpponent.HandZone.Add(Entity.FromCard(game.CurrentOpponent, in PlaceHolder));
+				}
+			}
+
+			foreach (IPlayable card in game.CurrentPlayer.HandZone)
+			{
+				if (!prevPl.Any(x => x.Id == card.Id))
+				{
+					game.CurrentPlayer.HandZone.Remove(card);
+					game.AuraUpdate();
+					game.CurrentPlayer.HandZone.Add(Entity.FromCard(game.CurrentPlayer, in PlaceHolder));
+				}
+			}
+
+
+		}
+
+
+		public void addCardToZone(IZone zone, Card card, Controller player)
 		{
 			var tags = new Dictionary<GameTag, int>();
 			tags[GameTag.ENTITY_ID] = game.NextId;
@@ -104,7 +148,7 @@ namespace SabberStoneBasicAI.PartialObservation
 			zone?.Add(playable);
 		}
 
-		private void CreateFullInformationGame(List<Card> deck_player1, DeckZone deckzone_player1, HandZone handzone_player1, List<Card> deck_player2, DeckZone deckzone_player2, HandZone handzone_player2)
+		public void CreateFullInformationGame(List<Card> deck_player1, DeckZone deckzone_player1, HandZone handzone_player1, List<Card> deck_player2, DeckZone deckzone_player2, HandZone handzone_player2)
 		{
 			game.Player1.DeckCards = deck_player1;
 			game.Player1.DeckZone = deckzone_player1;
@@ -132,25 +176,21 @@ namespace SabberStoneBasicAI.PartialObservation
 			foreach (PlayerTask task in tasksToSimulate)
 			{
 				bool success = false;
-				if (!(task.HasSource && task.Source.Card.Name == "No Way!"))
+				if (!(task.HasSource && task.Source.Card.Name == PlaceHolder.Id))
 				{
 					for (int tries = 0; tries < max_tries; tries++)
 					{
 						try
 						{
-							Game clone = origGame.Clone();
-							//Game clone = game.Clone();
+							Game clone = game.Clone();
 							clone.Process(task);
-							if (task.PlayerTaskType == PlayerTaskType.END_TURN)
-								simulated.Add(task, new POGame(clone, this.debug, !this.hideCurrentPlayer));
-							else
-								simulated.Add(task, new POGame(clone, this.debug, this.hideCurrentPlayer));
+							simulated.Add(task, new POGame(clone, this.debug, game));
 							success = true;
 							break;
 						}
 						catch (Exception e)
 						{
-							Console.Write(e.Message);
+							Console.Write(e);
 							//Console.WriteLine("Failed to copy");
 						}
 					}
@@ -172,7 +212,7 @@ namespace SabberStoneBasicAI.PartialObservation
 
 		public POGame getCopy(bool? debug = null)
 		{
-			return new POGame(origGame, debug ?? this.debug);
+			return new POGame(game, debug ?? this.debug);
 		}
 
 		public Game getGame()
