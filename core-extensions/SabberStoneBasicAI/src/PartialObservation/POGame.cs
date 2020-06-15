@@ -48,6 +48,11 @@ namespace SabberStoneBasicAI.PartialObservation
 			Controller op = game.CurrentOpponent;
 			Card placeHolder = PlaceHolder;
 
+			if (this.hideCurrentPlayer)
+			{
+				op = game.CurrentPlayer;
+			}
+
 			op.DeckCards = DebugDecks.PartialObservationDeck;
 
 			var hand = op.HandZone;
