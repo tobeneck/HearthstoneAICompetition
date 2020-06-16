@@ -83,7 +83,7 @@ namespace SabberStoneBasicAI.PartialObservation
 
 			foreach (IPlayable card in game.CurrentOpponent.HandZone)
 			{
-				if (!prevOp.Any(x => x.Id == card.Id))
+				if (card.Card.Id != PlaceHolder.Id && !prevOp.Any(x => x.Id == card.Id))
 				{
 					game.CurrentOpponent.HandZone.Remove(card);
 					game.AuraUpdate();
@@ -93,7 +93,7 @@ namespace SabberStoneBasicAI.PartialObservation
 
 			foreach (IPlayable card in game.CurrentPlayer.HandZone)
 			{
-				if (!prevPl.Any(x => x.Id == card.Id))
+				if (card.Card.Id != PlaceHolder.Id && !prevPl.Any(x => x.Id == card.Id))
 				{
 					game.CurrentPlayer.HandZone.Remove(card);
 					game.AuraUpdate();
@@ -176,7 +176,7 @@ namespace SabberStoneBasicAI.PartialObservation
 			foreach (PlayerTask task in tasksToSimulate)
 			{
 				bool success = false;
-				if (!(task.HasSource && task.Source.Card.Name == PlaceHolder.Id))
+				if (!(task.HasSource && task.Source.Card.Id == PlaceHolder.Id))
 				{
 					for (int tries = 0; tries < max_tries; tries++)
 					{
