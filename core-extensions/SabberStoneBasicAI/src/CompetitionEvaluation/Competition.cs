@@ -393,7 +393,7 @@ namespace SabberStoneBasicAI.CompetitionEvaluation
 				Player1HeroClass = decks[task.idx_deck_1].cardclass,
 				Player2HeroClass = decks[task.idx_deck_2].cardclass,
 				Player1Deck = decks[task.idx_deck_1].cards,
-				Player2Deck = decks[task.idx_deck_1].cards,
+				Player2Deck = decks[task.idx_deck_2].cards,
 				SkipMulligan = false,
 			};
 
