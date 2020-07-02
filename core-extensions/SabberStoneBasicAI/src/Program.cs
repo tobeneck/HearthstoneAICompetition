@@ -12,6 +12,8 @@
 // GNU Affero General Public License for more details.
 #endregion
 using System;
+using System.IO;
+using System.Threading;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -25,6 +27,8 @@ using SabberStoneBasicAI.Score;
 using SabberStoneBasicAI.AIAgents;
 using SabberStoneBasicAI.PartialObservation;
 using SabberStoneBasicAI.CompetitionEvaluation;
+
+using SabberStoneBasicAI.AIAgents.Iteration4;
 
 namespace SabberStoneBasicAI
 {
@@ -43,24 +47,81 @@ namespace SabberStoneBasicAI
 			//RandomGames();
 			//TestPOGame();
 			//TestFullGames();
-			TestTournament();
+			//TestTournament();
+
+			AbstractAgent player1 = new Iteration4();
+			CardClass player1Class = CardClass.MAGE;
+			List<Card> player1Deck = Decks.RenoKazakusMage;
+
+			AbstractAgent player2 = new OneStepLookahead();//new DynamicLookaheadAgent();  GreedyAgent  OneStepLookahead
+			int nrGames = 15;
+
+			TestPOGame(nrGames, 1, player1, player2, player1Class, CardClass.MAGE, player1Deck, Decks.RenoKazakusMage);
+			TestPOGame(nrGames, 2, player1, player2, player1Class, CardClass.MAGE, player1Deck, Decks.RenoKazakusMage);
+
+			/*
+			Console.WriteLine("---Evaluate vs Mage---");
+			TestPOGame(nrGames, 1, player1, player2, player1Class, CardClass.MAGE, player1Deck, Decks.RenoKazakusMage);
+			TestPOGame(nrGames, 2, player1, player2, player1Class, CardClass.MAGE, player1Deck, Decks.RenoKazakusMage);
+
+			Console.WriteLine("---Evaluate vs Warrior---");
+			TestPOGame(nrGames, 1, player1, player2, player1Class, CardClass.WARRIOR, player1Deck, Decks.AggroPirateWarrior);
+			TestPOGame(nrGames, 2, player1, player2, player1Class, CardClass.WARRIOR, player1Deck, Decks.AggroPirateWarrior);
+
+			//Console.WriteLine("---Evaluate vs Druid---");
+			//TestPOGame(nrGames, 1, player1, player2, player1Class, CardClass.DRUID, player1Deck, Decks.MurlocDruid);
+			//TestPOGame(nrGames, 2, player1, player2, player1Class, CardClass.DRUID, player1Deck, Decks.MurlocDruid);
+
+			Console.WriteLine("---Evaluate vs Shaman---");
+			TestPOGame(nrGames, 1, player1, player2, player1Class, CardClass.SHAMAN, player1Deck, Decks.MidrangeJadeShaman);
+			TestPOGame(nrGames, 2, player1, player2, player1Class, CardClass.SHAMAN, player1Deck, Decks.MidrangeJadeShaman);
+
+			Console.WriteLine("---Evaluate vs Paladin---");
+			TestPOGame(nrGames, 1, player1, player2, player1Class, CardClass.PALADIN, player1Deck, Decks.MidrangeBuffPaladin);
+			TestPOGame(nrGames, 2, player1, player2, player1Class, CardClass.PALADIN, player1Deck, Decks.MidrangeBuffPaladin);
+
+			//error in the hunter? -> hunter is not evaluated in 2020 and throws some errors
+			//Console.WriteLine("---Evaluate vs Hunter---");
+			//TestPOGame(nrGames, 1, player1, player2, player1Class, CardClass.HUNTER, player1Deck, Decks.MidrangeSecretHunter);
+			//TestPOGame(nrGames, 2, player1, player2, player1Class, CardClass.HUNTER, player1Deck, Decks.MidrangeSecretHunter);
+
+			Console.WriteLine("---Evaluate vs Warlock---");
+			TestPOGame(nrGames, 1, player1, player2, player1Class, CardClass.WARLOCK, player1Deck, Decks.ZooDiscardWarlock);
+			TestPOGame(nrGames, 2, player1, player2, player1Class, CardClass.WARLOCK, player1Deck, Decks.ZooDiscardWarlock);
+
+			//error in the rougue?
+			//Console.WriteLine("---Evaluate vs Rogue---");
+			//TestPOGame(nrGames, 1, player1, player2, player1Class, CardClass.ROGUE, player1Deck, Decks.MiraclePirateRogue); //ERROR!
+			//TestPOGame(nrGames, 2, player1, player2, player1Class, CardClass.ROGUE, player1Deck, Decks.MiraclePirateRogue);
+
+			Console.WriteLine("---Evaluate vs Priest---");
+			TestPOGame(nrGames, 1, player1, player2, player1Class, CardClass.PRIEST, player1Deck, Decks.RenoKazakusDragonPriest);
+			TestPOGame(nrGames, 2, player1, player2, player1Class, CardClass.PRIEST, player1Deck, Decks.RenoKazakusDragonPriest);
+			*/
 
 			Console.WriteLine("Test ended!");
+			Console.WriteLine("EXIT"); //print EXIT for the learning program to know when to stop it
 			Console.ReadLine();
 		}
 
 		public static void TestTournament()
 		{
 			Agent[] agents = new Agent[2];
-			agents[0] = new Agent(typeof(RandomAgent), "Random Agent");
-			agents[1] = new Agent(typeof(GreedyAgent), "Greedy Agent");
+			//agents[0] = new Agent(typeof(RandomAgent), "Random Agent");
+			//agents[1] = new Agent(typeof(GreedyAgent), "Greedy Agent");
 			//agents[2] = new Agent(typeof(DynamicLookaheadAgent), "Dynamic Lookahead Agent");
 			//agents[3] = new Agent(typeof(BeamSearchAgent), "Beam Search Agent");
+			//agents[4] = new Agent(typeof(Iteration4), "Iteration4");
+			agents[0] = new Agent(typeof(Iteration4), "Iteration4");
+			agents[1] = new Agent(typeof(DynamicLookaheadAgent), "Dynamic Lookahead Agent");
 
-			CompetitionEvaluation.Deck[] decks = new CompetitionEvaluation.Deck[3];
+			CompetitionEvaluation.Deck[] decks = new CompetitionEvaluation.Deck[6];
 			decks[0] = new CompetitionEvaluation.Deck(Decks.RenoKazakusMage, CardClass.MAGE, "Mage");
 			decks[1] = new CompetitionEvaluation.Deck(Decks.AggroPirateWarrior, CardClass.WARRIOR, "Warrior");
 			decks[2] = new CompetitionEvaluation.Deck(Decks.MidrangeJadeShaman, CardClass.SHAMAN, "Shaman");
+			decks[3] = new CompetitionEvaluation.Deck(Decks.ZooDiscardWarlock, CardClass.WARLOCK, "Warlock");
+			decks[4] = new CompetitionEvaluation.Deck(Decks.RenoKazakusDragonPriest, CardClass.PRIEST, "Priest");
+			decks[5] = new CompetitionEvaluation.Deck(Decks.MurlocDruid, CardClass.DRUID, "Druid");
 
 			RoundRobinCompetition competition = new RoundRobinCompetition(agents, decks, "results.txt");
 			competition.CreateTasks(100);
@@ -70,36 +131,53 @@ namespace SabberStoneBasicAI
 			competition.PrintAgentStats();
 		}
 
-		public static void TestPOGame()
+		public static void TestPOGame(int numberOfRuns, int startPlayer, AbstractAgent p1, AbstractAgent p2, CardClass p1HeroClass, CardClass p2HeroClass, List<Card> p1Deck, List<Card> p2Deck)
 		{
 			Console.WriteLine("Setup gameConfig");
-			
+
 			var gameConfig = new GameConfig()
 			{
-				StartPlayer = 1,
-				Player1HeroClass = CardClass.MAGE,
-				Player2HeroClass = CardClass.MAGE,
-				Player1Deck = Decks.RenoKazakusMage,
-				Player2Deck = Decks.RenoKazakusMage,
+				StartPlayer = startPlayer,
+				Player1HeroClass = p1HeroClass,
+				Player2HeroClass = p2HeroClass,
+				Player1Deck = p1Deck,
+				Player2Deck = p2Deck,
 				FillDecks = false,
 				Shuffle = true,
-				Logging = false
+				Logging = true
 			};
 
 			Console.WriteLine("Setup POGameHandler");
-			AbstractAgent player1 = new GreedyAgent();
-			AbstractAgent player2 = new GreedyAgent();
-			var gameHandler = new POGameHandler(gameConfig, player1, player2, repeatDraws: false);
+			var gameHandler = new POGameHandler(gameConfig, p1, p2, repeatDraws: false);
 
 			Console.WriteLine("Simulate Games");
 			//gameHandler.PlayGame();
-			gameHandler.PlayGames(nr_of_games: 1000, addResultToGameStats: true, debug: false);
+			gameHandler.PlayGames(nr_of_games: numberOfRuns, addResultToGameStats: true, debug: false);
 			GameStats gameStats = gameHandler.getGameStats();
 
 			gameStats.printResults();
 
+			Console.WriteLine("Writing results to the file");
+
+			//TODO: write the results here
+			String wins = "";
+
+			for(int i = 0; i < gameStats.PlayerA_Wins; i++)
+				wins += "1";
+
+
+			for(int i = 0; i < numberOfRuns - gameStats.PlayerA_Wins; i++)
+				wins += "2";
+
+			//write the results
+			string outputFile = "/home/tobias/Develop/Java/CrushingBots/data/TRAINING_results.txt";
+			using (StreamWriter sw = File.AppendText(outputFile))
+			{
+				sw.Write(wins);
+			}
+
 			Console.WriteLine("Test successful");
-			Console.ReadLine();
+			//Console.ReadLine();
 		}
 
 		public static void RandomGames()
