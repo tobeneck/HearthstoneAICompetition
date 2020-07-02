@@ -1,0 +1,35 @@
+
+
+Setup:
+
+1. Get Visual Studio Code and install the C# addon
+
+2. Install ".Net Core", explained on the microsoft webside: https://docs.microsoft.com/en-us/dotnet/core/install/linux-ubuntu
+
+2. (should already be done here)
+   Add a line to "core-extensions/HSGrammar/HSGrammar.csproj", to set up the java environment variable:
+
+   <Project Sdk="Microsoft.NET.Sdk">
+
+   <PropertyGroup>
+     <OutputType>Exe</OutputType>
+     <Antlr4JavaExecutable>/usr/bin/java</Antlr4JavaExecutable> //<- line to add
+     <TargetFramework>netcoreapp2.0</TargetFramework>
+   ...
+
+3. There are variables in the Program.cs that might need to be changed for training:
+   * set the train variable in TestPOGame in Program.cs to true
+   * change the "outputFile" variable in Program.TestPOGame() to your output file path
+
+
+
+Build (for Linux only):
+
+ * run "dotnet build -r linux-x64" in the root directory of the project. (or "dotnet publish --runtime linux-x64")
+ * building always results whits an error for me, but does build anyway, so i guess its fine
+
+
+
+Run:
+
+ * The build Program is in "HearthstoneAICompetition/core-extensions/SabberStoneBasicAI/bin/Debug/netcoreapp2.1/linux-x64/SabberStoneAICompetition"
