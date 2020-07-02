@@ -131,7 +131,7 @@ namespace SabberStoneBasicAI
 			competition.PrintAgentStats();
 		}
 
-		public static void TestPOGame(int numberOfRuns, int startPlayer, AbstractAgent p1, AbstractAgent p2, CardClass p1HeroClass, CardClass p2HeroClass, List<Card> p1Deck, List<Card> p2Deck)
+		public static void TestPOGame(int numberOfRuns, int startPlayer, AbstractAgent p1, AbstractAgent p2, CardClass p1HeroClass, CardClass p2HeroClass, List<Card> p1Deck, List<Card> p2Deck, bool train = false)
 		{
 			Console.WriteLine("Setup gameConfig");
 
@@ -170,10 +170,15 @@ namespace SabberStoneBasicAI
 				wins += "2";
 
 			//write the results
-			string outputFile = "/home/tobias/Develop/Java/CrushingBots/data/TRAINING_results.txt";
-			using (StreamWriter sw = File.AppendText(outputFile))
-			{
-				sw.Write(wins);
+			if(train){
+				string outputFile = "/home/tobias/Develop/Java/CrushingBots/data/TRAINING_results.txt";
+				using (StreamWriter sw = File.AppendText(outputFile))
+				{
+					sw.Write(wins);
+				}
+
+				Console.WriteLine("Test successful");
+				//Console.ReadLine();
 			}
 
 			Console.WriteLine("Test successful");
