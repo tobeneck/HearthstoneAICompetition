@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
+    <Antlr4JavaExecutable>/usr/bin/java</Antlr4JavaExecutable>
     <TargetFramework>netcoreapp2.0</TargetFramework>
 		<LangVersion>latest</LangVersion>
     <Configurations>Debug;Release;NoSpan</Configurations>
